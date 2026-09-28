@@ -1,8 +1,10 @@
-import React from 'react';
-import { ArrowRight, Download, Mail } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Download, Mail, Sparkles } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, InstagramIcon } from './TechIcons';
 
 export default function Hero({ onExploreProjects }) {
+  const [isColor, setIsColor] = useState(false);
+
   const scrollTo = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -128,15 +130,19 @@ export default function Hero({ onExploreProjects }) {
             />
           </svg>
 
-          {/* Developer Portrait Image */}
-          <div className="portrait-photo-box">
+          {/* Developer Portrait Image with Interactive Grayscale Transition */}
+          <div
+            className="portrait-photo-box"
+            onClick={() => setIsColor(!isColor)}
+            title="Hover or click to toggle color / grayscale effect"
+          >
             <img
-              src="/ritik.jpg"
+              src="/ritik.png"
               alt="Ritik Suthar - Full Stack Developer"
-              className="portrait-img"
+              className={`portrait-img ${isColor ? 'color-active' : ''}`}
               loading="eager"
               onError={(e) => {
-                e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";
+                e.target.src = "/ritik.jpg";
               }}
             />
           </div>
