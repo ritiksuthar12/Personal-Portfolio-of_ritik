@@ -1,0 +1,11 @@
+{
+  "name": "personal-portfolio",
+  "version": "1.0.0",
+  "description": "Full Stack MERN Dynamic Portfolio for Ritik Suthar",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "start": "cd server && npm start",
+    "build": "cd client && npm run build"
+  }
+}
