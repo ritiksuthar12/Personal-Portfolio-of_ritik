@@ -19,7 +19,7 @@ export default function Footer({ onOpenAdmin, isAdmin }) {
                 | Ritik Suthar Portfolio
               </span>
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: '0.35rem' }}>
+            <p style={{ fontSize: '0.85rem', color: '#4b5563', marginTop: '0.35rem' }}>
               Full Stack Developer • MERN Stack • C++ • DSA
             </p>
           </div>
@@ -27,12 +27,13 @@ export default function Footer({ onOpenAdmin, isAdmin }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <button
               onClick={onOpenAdmin}
+              aria-label={isAdmin ? 'Admin Authenticated (Dashboard)' : 'Open Admin Login'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
                 fontSize: '0.82rem',
-                color: isAdmin ? '#059669' : '#6b7280',
+                color: isAdmin ? '#059669' : '#4b5563',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -48,13 +49,14 @@ export default function Footer({ onOpenAdmin, isAdmin }) {
               className="social-btn"
               style={{ width: '38px', height: '38px' }}
               title="Back to top"
+              aria-label="Back to top of page"
             >
               <ArrowUp size={16} />
             </button>
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem', color: '#9ca3af', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748b', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
             © {new Date().getFullYear()} Ritik Suthar. All rights reserved.
           </div>

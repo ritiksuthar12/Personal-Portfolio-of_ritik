@@ -28,7 +28,7 @@ export default function FeaturedProjects({
               <Plus size={14} /> Add
             </button>
           )}
-          <button onClick={onViewAll} className="view-all-link">
+          <button onClick={onViewAll} className="view-all-link" aria-label="View all portfolio projects">
             View All <ArrowRight size={16} />
           </button>
         </div>
@@ -48,9 +48,10 @@ export default function FeaturedProjects({
                   <a
                     href={project.deployedUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="card-arrow-btn"
                     title={`Open deployed ${project.title}`}
+                    aria-label={`Open deployed demo of ${project.title} (opens in a new tab)`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <ArrowUpRight size={16} />
@@ -79,6 +80,7 @@ export default function FeaturedProjects({
                       }}
                       className="action-btn-sm edit"
                       title="Edit project"
+                      aria-label={`Edit project ${project.title}`}
                     >
                       <Edit3 size={12} /> Edit
                     </button>
@@ -89,6 +91,7 @@ export default function FeaturedProjects({
                       }}
                       className="action-btn-sm delete"
                       title="Delete project"
+                      aria-label={`Delete project ${project.title}`}
                     >
                       <Trash2 size={12} /> Delete
                     </button>
@@ -96,10 +99,11 @@ export default function FeaturedProjects({
                       <a
                         href={project.githubUrl}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="action-btn-sm"
                         style={{ marginLeft: 'auto' }}
                         title="GitHub Repo"
+                        aria-label={`View ${project.title} source code on GitHub (opens in a new tab)`}
                       >
                         <GithubIcon size={12} color="#111827" />
                       </a>

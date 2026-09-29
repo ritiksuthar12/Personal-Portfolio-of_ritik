@@ -69,6 +69,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
             scrollTo('home');
           }}
           className="brand-logo"
+          aria-label="Ritik Suthar Portfolio - Home"
         >
           <span className="brand-logo-text">RS</span>
           {isAdmin && (
@@ -79,7 +80,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
         </a>
 
         {/* Desktop Nav Links */}
-        <nav className="desktop-nav">
+        <nav className="desktop-nav" aria-label="Main Navigation">
           <ul className="nav-links">
             <li>
               <a
@@ -152,6 +153,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
                 onClick={onOpenAddProject}
                 className="btn-outline btn-compact"
                 title="Add New Project"
+                aria-label="Add New Project"
               >
                 <Plus size={14} /> <span className="btn-label-text">Project</span>
               </button>
@@ -159,6 +161,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
                 onClick={onOpenAddSkill}
                 className="btn-outline btn-compact"
                 title="Add New Skill"
+                aria-label="Add New Skill"
               >
                 <Plus size={14} /> <span className="btn-label-text">Skill</span>
               </button>
@@ -167,6 +170,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
                 className="btn-primary btn-compact"
                 style={{ backgroundColor: '#2563eb', borderColor: '#2563eb' }}
                 title="Admin Dashboard"
+                aria-label="Open Admin Dashboard"
               >
                 <Shield size={14} /> <span className="btn-label-text">Dashboard</span>
               </button>
@@ -174,6 +178,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
                 onClick={onLogout}
                 className="btn-outline btn-compact btn-icon-only"
                 title="Logout Admin"
+                aria-label="Logout Admin"
               >
                 <LogOut size={15} />
               </button>
@@ -183,6 +188,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
               onClick={onOpenAdmin}
               className="social-btn admin-lock-btn"
               title="Admin Login (Only Ritik can edit)"
+              aria-label="Admin Login Portal"
             >
               <Lock size={15} />
             </button>
@@ -195,6 +201,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
               scrollTo('contact');
             }}
             className="btn-primary nav-cta-btn"
+            aria-label="Get in touch with Ritik Suthar"
           >
             <span>Get In Touch</span> <ArrowUpRight size={16} />
           </a>
@@ -203,8 +210,9 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="mobile-menu-toggle"
-            aria-label="Toggle navigation menu"
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-panel"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -214,7 +222,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="mobile-drawer-overlay" onClick={() => setMobileMenuOpen(false)}>
-          <div className="mobile-drawer-panel" onClick={(e) => e.stopPropagation()}>
+          <div id="mobile-nav-panel" className="mobile-drawer-panel" onClick={(e) => e.stopPropagation()}>
             <div className="mobile-drawer-header">
               <span className="brand-logo-text" style={{ fontSize: '1.4rem' }}>RS</span>
               <button
@@ -226,7 +234,7 @@ export default function Navbar({ onOpenAdmin, isAdmin, onLogout, onOpenAddProjec
               </button>
             </div>
 
-            <nav className="mobile-nav-links">
+            <nav className="mobile-nav-links" aria-label="Mobile Navigation">
               <a
                 href="#home"
                 className={`mobile-nav-link ${activeSection === 'home' ? 'active' : ''}`}

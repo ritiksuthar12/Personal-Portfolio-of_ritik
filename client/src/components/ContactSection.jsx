@@ -91,13 +91,13 @@ export default function ContactSection({ notify }) {
               Connect with me
             </div>
             <div className="contact-social-links">
-              <a href="https://github.com/ritiksuthar" target="_blank" rel="noreferrer" className="social-btn" title="GitHub" aria-label="GitHub">
+              <a href="https://github.com/ritiksuthar" target="_blank" rel="noopener noreferrer" className="social-btn" title="GitHub" aria-label="Ritik Suthar on GitHub (opens in a new tab)">
                 <GithubIcon size={18} />
               </a>
-              <a href="https://linkedin.com/in/ritiksuthar" target="_blank" rel="noreferrer" className="social-btn" title="LinkedIn" aria-label="LinkedIn">
+              <a href="https://linkedin.com/in/ritiksuthar" target="_blank" rel="noopener noreferrer" className="social-btn" title="LinkedIn" aria-label="Ritik Suthar on LinkedIn (opens in a new tab)">
                 <LinkedinIcon size={18} />
               </a>
-              <a href="https://instagram.com/ritiksuthar" target="_blank" rel="noreferrer" className="social-btn" title="Instagram" aria-label="Instagram">
+              <a href="https://instagram.com/ritiksuthar" target="_blank" rel="noopener noreferrer" className="social-btn" title="Instagram" aria-label="Ritik Suthar on Instagram (opens in a new tab)">
                 <InstagramIcon size={18} />
               </a>
             </div>
@@ -111,52 +111,63 @@ export default function ContactSection({ notify }) {
           </h3>
 
           {submitted && (
-            <div className="contact-success-alert">
+            <div className="contact-success-alert" role="status" aria-live="polite">
               <CheckCircle2 size={18} /> Thank you! Your message has been delivered directly to Ritik.
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} aria-label="Contact Ritik Suthar">
             <div className="contact-form-row">
               <div className="form-group">
-                <label className="form-label">Your Name *</label>
+                <label htmlFor="contact-name" className="form-label">Your Name *</label>
                 <input
+                  id="contact-name"
+                  name="name"
                   type="text"
                   placeholder="e.g. Alex Smith"
                   className="form-input"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  autoComplete="name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email Address *</label>
+                <label htmlFor="contact-email" className="form-label">Email Address *</label>
                 <input
+                  id="contact-email"
+                  name="email"
                   type="email"
                   placeholder="alex@example.com"
                   className="form-input"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  autoComplete="email"
                   required
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Subject</label>
+              <label htmlFor="contact-subject" className="form-label">Subject</label>
               <input
+                id="contact-subject"
+                name="subject"
                 type="text"
                 placeholder="Project inquiry / Opportunity"
                 className="form-input"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                autoComplete="off"
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Message *</label>
+              <label htmlFor="contact-message" className="form-label">Message *</label>
               <textarea
+                id="contact-message"
+                name="message"
                 rows={4}
                 placeholder="Tell me about your project, timeline, or idea..."
                 className="form-textarea"
@@ -170,6 +181,7 @@ export default function ContactSection({ notify }) {
               type="submit"
               disabled={submitting}
               className="btn-primary contact-submit-btn"
+              aria-label="Submit message"
             >
               {submitting ? 'Sending Message...' : (
                 <><span>Send Message</span> <Send size={16} /></>

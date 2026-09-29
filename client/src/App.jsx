@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsRibbon from './components/StatsRibbon';
@@ -7,19 +7,23 @@ import TechStack from './components/TechStack';
 import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
-import ProjectsModal from './components/ProjectsModal';
-import SkillsModal from './components/SkillsModal';
-import AdminModal from './components/AdminModal';
-import ProjectEditorModal from './components/ProjectEditorModal';
-import SkillEditorModal from './components/SkillEditorModal';
 import Toast from './components/Toast';
+import { useSEO } from './components/SEO';
 import { api } from './services/api';
-import { ShieldCheck, Plus, LogOut, ExternalLink, Sparkles } from 'lucide-react';
+import { defaultProjects, defaultSkills } from './data/defaultPortfolioData';
+import { ShieldCheck, Plus, LogOut } from 'lucide-react';
+
+// Code-split heavy modals to minimize initial JS bundle size and maximize Core Web Vitals (LCP/TBT)
+const ProjectsModal = lazy(() => import('./components/ProjectsModal'));
+const SkillsModal = lazy(() => import('./components/SkillsModal'));
+const AdminModal = lazy(() => import('./components/AdminModal'));
+const ProjectEditorModal = lazy(() => import('./components/ProjectEditorModal'));
+const SkillEditorModal = lazy(() => import('./components/SkillEditorModal'));
 
 export default function App() {
-  const [projects, setProjects] = useState([]);
-  const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Pre-seed with default portfolio data for instant first-paint crawlability and zero-CLS
+  const [projects, setProjects] = useState(defaultProjects);
+  const [skills, setSkills] = useState(defaultSkills);
 
   // Authentication State
   const [isAdmin, setIsAdmin] = useState(false);
@@ -39,6 +43,19 @@ export default function App() {
   // Toasts
   const [toasts, setToasts] = useState([]);
 
+  // Synchronize dynamic head metadata based on modal navigation state
+  let modalTitle = null;
+  if (projectsModalOpen) modalTitle = 'All Projects';
+  else if (skillsModalOpen) modalTitle = 'Technical Skills';
+  else if (adminModalOpen) modalTitle = 'Admin Portal';
+
+  useSEO({
+    title: modalTitle,
+    description: modalTitle
+      ? `${modalTitle} - Ritik Suthar Full Stack MERN Developer Portfolio`
+      : 'Portfolio of Ritik Suthar, a Full Stack Developer specializing in React, Node.js, Express, MongoDB, and C++ DSA. Explore featured web applications and technical skills.'
+  });
+
   const notify = useCallback((message, type = 'info') => {
     const id = Date.now() + Math.random().toString();
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -51,23 +68,25 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Load initial data
+  // Load latest data from API or offline cache
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
       const [projData, skillData] = await Promise.all([
         api.getProjects(),
         api.getSkills()
       ]);
-      setProjects(projData || []);
-      setSkills(skillData || []);
+      if (projData && Array.isArray(projData) && projData.length > 0) {
+        setProjects(projData);
+      }
+      if (skillData && Array.isArray(skillData) && skillData.length > 0) {
+        setSkills(skillData);
+      }
     } catch (err) {
-      console.error('Failed to load portfolio data:', err);
-      notify('Backend connected with fallback offline storage', 'info');
+      console.warn('Portfolio data loaded via default snapshot fallback:', err);
     } finally {
       setLoading(false);
     }
-  }, [notify]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -184,7 +203,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <ShieldCheck size={16} color="#34d399" />
             <span>
-              <strong>Admin Mode Active:</strong> Logged in as <strong>{currentUser?.username || 'Ritik'}</strong>. You have exclusive rights to add, edit, and delete projects & skills.
+              <strong>Admin Mode Active:</strong> Logged in as <strong>{currentUser?.username || 'Ritik'}</strong>. You have exclusive rights to add, edit, and delete projects &amp; skills.
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -192,6 +211,7 @@ export default function App() {
               onClick={handleOpenAddProject}
               className="action-btn-sm"
               style={{ backgroundColor: '#27272a', color: '#fff', borderColor: '#3f3f46' }}
+              aria-label="Add new project"
             >
               <Plus size={13} /> Project
             </button>
@@ -199,6 +219,7 @@ export default function App() {
               onClick={handleOpenAddSkill}
               className="action-btn-sm"
               style={{ backgroundColor: '#27272a', color: '#fff', borderColor: '#3f3f46' }}
+              aria-label="Add new skill"
             >
               <Plus size={13} /> Skill
             </button>
@@ -206,6 +227,7 @@ export default function App() {
               onClick={() => setAdminModalOpen(true)}
               className="action-btn-sm"
               style={{ backgroundColor: '#2563eb', color: '#fff', borderColor: '#2563eb' }}
+              aria-label="Open Admin Dashboard"
             >
               Dashboard
             </button>
@@ -214,6 +236,7 @@ export default function App() {
               className="action-btn-sm"
               style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
               title="Logout Admin"
+              aria-label="Logout Admin"
             >
               <LogOut size={13} />
             </button>
@@ -230,15 +253,15 @@ export default function App() {
         onOpenAddSkill={handleOpenAddSkill}
       />
 
-      <main style={{ flexGrow: 1 }}>
+      <main id="main-content" tabIndex="-1" style={{ flexGrow: 1, outline: 'none' }}>
         {/* Hero Section */}
         <Hero onExploreProjects={() => setProjectsModalOpen(true)} />
 
         {/* Stats Ribbon */}
         <StatsRibbon projectsCount={projects.length} />
 
-        {/* Two-Column Section: Featured Projects + Tech Stack (matches screenshot layout) */}
-        <section id="projects" className="featured-tech-grid">
+        {/* Two-Column Section: Featured Projects + Tech Stack */}
+        <section id="projects" className="featured-tech-grid" aria-label="Projects and Skills showcase">
           {/* Column 1: Featured Projects */}
           <FeaturedProjects
             projects={projects}
@@ -272,57 +295,69 @@ export default function App() {
       {/* Footer */}
       <Footer onOpenAdmin={() => setAdminModalOpen(true)} isAdmin={isAdmin} />
 
-      {/* MODALS */}
-      <ProjectsModal
-        isOpen={projectsModalOpen}
-        onClose={() => setProjectsModalOpen(false)}
-        projects={projects}
-        isAdmin={isAdmin}
-        onAddProject={handleOpenAddProject}
-        onEditProject={handleOpenEditProject}
-        onDeleteProject={handleDeleteProject}
-      />
+      {/* LAZY LOADED MODALS (Code-split to reduce main thread JS parse time) */}
+      <Suspense fallback={null}>
+        {projectsModalOpen && (
+          <ProjectsModal
+            isOpen={projectsModalOpen}
+            onClose={() => setProjectsModalOpen(false)}
+            projects={projects}
+            isAdmin={isAdmin}
+            onAddProject={handleOpenAddProject}
+            onEditProject={handleOpenEditProject}
+            onDeleteProject={handleDeleteProject}
+          />
+        )}
 
-      <SkillsModal
-        isOpen={skillsModalOpen}
-        onClose={() => setSkillsModalOpen(false)}
-        skills={skills}
-        isAdmin={isAdmin}
-        onAddSkill={handleOpenAddSkill}
-        onEditSkill={handleOpenEditSkill}
-        onDeleteSkill={handleDeleteSkill}
-      />
+        {skillsModalOpen && (
+          <SkillsModal
+            isOpen={skillsModalOpen}
+            onClose={() => setSkillsModalOpen(false)}
+            skills={skills}
+            isAdmin={isAdmin}
+            onAddSkill={handleOpenAddSkill}
+            onEditSkill={handleOpenEditSkill}
+            onDeleteSkill={handleDeleteSkill}
+          />
+        )}
 
-      <AdminModal
-        isOpen={adminModalOpen}
-        onClose={() => setAdminModalOpen(false)}
-        isAdmin={isAdmin}
-        onLoginSuccess={handleLoginSuccess}
-        onLogout={handleLogout}
-        projects={projects}
-        skills={skills}
-        onOpenAddProject={handleOpenAddProject}
-        onEditProject={handleOpenEditProject}
-        onDeleteProject={handleDeleteProject}
-        onOpenAddSkill={handleOpenAddSkill}
-        onEditSkill={handleOpenEditSkill}
-        onDeleteSkill={handleDeleteSkill}
-        notify={notify}
-      />
+        {adminModalOpen && (
+          <AdminModal
+            isOpen={adminModalOpen}
+            onClose={() => setAdminModalOpen(false)}
+            isAdmin={isAdmin}
+            onLoginSuccess={handleLoginSuccess}
+            onLogout={handleLogout}
+            projects={projects}
+            skills={skills}
+            onOpenAddProject={handleOpenAddProject}
+            onEditProject={handleOpenEditProject}
+            onDeleteProject={handleDeleteProject}
+            onOpenAddSkill={handleOpenAddSkill}
+            onEditSkill={handleOpenEditSkill}
+            onDeleteSkill={handleDeleteSkill}
+            notify={notify}
+          />
+        )}
 
-      <ProjectEditorModal
-        isOpen={projectEditorOpen}
-        onClose={() => setProjectEditorOpen(false)}
-        project={editingProject}
-        onSave={handleSaveProject}
-      />
+        {projectEditorOpen && (
+          <ProjectEditorModal
+            isOpen={projectEditorOpen}
+            onClose={() => setProjectEditorOpen(false)}
+            project={editingProject}
+            onSave={handleSaveProject}
+          />
+        )}
 
-      <SkillEditorModal
-        isOpen={skillEditorOpen}
-        onClose={() => setSkillEditorOpen(false)}
-        skill={editingSkill}
-        onSave={handleSaveSkill}
-      />
+        {skillEditorOpen && (
+          <SkillEditorModal
+            isOpen={skillEditorOpen}
+            onClose={() => setSkillEditorOpen(false)}
+            skill={editingSkill}
+            onSave={handleSaveSkill}
+          />
+        )}
+      </Suspense>
 
       {/* Floating Toast Notification Stack */}
       <Toast toasts={toasts} onDismiss={dismissToast} />

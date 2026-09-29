@@ -1,4 +1,6 @@
-const API_BASE = 'http://localhost:5000/api';
+import { defaultProjects, defaultSkills } from '../data/defaultPortfolioData';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('ritik_portfolio_token');
@@ -8,139 +10,295 @@ const getAuthHeaders = () => {
   };
 };
 
+// Helper for fetch with timeout
+const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (err) {
+    clearTimeout(id);
+    throw err;
+  }
+};
+
 export const api = {
   // Projects
   async getProjects() {
-    const res = await fetch(`${API_BASE}/projects`);
-    if (!res.ok) throw new Error('Failed to fetch projects');
-    const data = await res.json();
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/projects`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          localStorage.setItem('ritik_cached_projects', JSON.stringify(data.data));
+          return data.data;
+        }
+      }
+    } catch {
+      // Backend not running or timeout -> graceful offline fallback
+    }
+
+    const cached = localStorage.getItem('ritik_cached_projects');
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // invalid cache, fallback to defaults
+      }
+    }
+    return defaultProjects;
   },
 
   async createProject(projectData) {
-    const res = await fetch(`${API_BASE}/projects`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(projectData)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to create project');
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/projects`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(projectData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        return data.data;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const newProject = {
+      ...projectData,
+      id: `proj-${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    const current = await this.getProjects();
+    const updated = [newProject, ...current];
+    localStorage.setItem('ritik_cached_projects', JSON.stringify(updated));
+    return newProject;
   },
 
   async updateProject(id, projectData) {
-    const res = await fetch(`${API_BASE}/projects/${id}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(projectData)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to update project');
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/projects/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(projectData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        return data.data;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const current = await this.getProjects();
+    const updated = current.map((p) => ((p.id || p._id) === id ? { ...p, ...projectData } : p));
+    localStorage.setItem('ritik_cached_projects', JSON.stringify(updated));
+    return { ...projectData, id };
   },
 
   async deleteProject(id) {
-    const res = await fetch(`${API_BASE}/projects/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to delete project');
-    return data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/projects/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const current = await this.getProjects();
+    const updated = current.filter((p) => (p.id || p._id) !== id);
+    localStorage.setItem('ritik_cached_projects', JSON.stringify(updated));
+    return { success: true };
   },
 
   // Skills
   async getSkills() {
-    const res = await fetch(`${API_BASE}/skills`);
-    if (!res.ok) throw new Error('Failed to fetch skills');
-    const data = await res.json();
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/skills`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          localStorage.setItem('ritik_cached_skills', JSON.stringify(data.data));
+          return data.data;
+        }
+      }
+    } catch {
+      // Backend not running or timeout -> graceful offline fallback
+    }
+
+    const cached = localStorage.getItem('ritik_cached_skills');
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // invalid cache, fallback to defaults
+      }
+    }
+    return defaultSkills;
   },
 
   async createSkill(skillData) {
-    const res = await fetch(`${API_BASE}/skills`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(skillData)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to create skill');
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/skills`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(skillData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        return data.data;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const newSkill = {
+      ...skillData,
+      id: `skill-${Date.now()}`
+    };
+    const current = await this.getSkills();
+    const updated = [...current, newSkill];
+    localStorage.setItem('ritik_cached_skills', JSON.stringify(updated));
+    return newSkill;
   },
 
   async updateSkill(id, skillData) {
-    const res = await fetch(`${API_BASE}/skills/${id}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(skillData)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to update skill');
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/skills/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(skillData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        return data.data;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const current = await this.getSkills();
+    const updated = current.map((s) => ((s.id || s._id) === id ? { ...s, ...skillData } : s));
+    localStorage.setItem('ritik_cached_skills', JSON.stringify(updated));
+    return { ...skillData, id };
   },
 
   async deleteSkill(id) {
-    const res = await fetch(`${API_BASE}/skills/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to delete skill');
-    return data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/skills/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const current = await this.getSkills();
+    const updated = current.filter((s) => (s.id || s._id) !== id);
+    localStorage.setItem('ritik_cached_skills', JSON.stringify(updated));
+    return { success: true };
   },
 
   // Contact
   async sendMessage(messageData) {
-    const res = await fetch(`${API_BASE}/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messageData)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to send message');
-    return data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(messageData)
+      });
+      const data = await res.json();
+      if (res.ok) return data;
+    } catch {
+      // Offline fallback storage
+    }
+
+    const msg = {
+      ...messageData,
+      id: `msg-${Date.now()}`,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+    const existing = JSON.parse(localStorage.getItem('ritik_cached_messages') || '[]');
+    localStorage.setItem('ritik_cached_messages', JSON.stringify([msg, ...existing]));
+    return { success: true, message: 'Message stored in local inbox' };
   },
 
   async getMessages() {
-    const res = await fetch(`${API_BASE}/contact`, {
-      headers: getAuthHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to fetch messages');
-    const data = await res.json();
-    return data.data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/contact`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data;
+      }
+    } catch {
+      // Offline fallback
+    }
+    return JSON.parse(localStorage.getItem('ritik_cached_messages') || '[]');
   },
 
   async deleteMessage(id) {
-    const res = await fetch(`${API_BASE}/contact/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to delete message');
-    return data;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/contact/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline fallback
+    }
+    const existing = JSON.parse(localStorage.getItem('ritik_cached_messages') || '[]');
+    const updated = existing.filter((m) => (m.id || m._id) !== id);
+    localStorage.setItem('ritik_cached_messages', JSON.stringify(updated));
+    return { success: true };
   },
 
   // Auth
   async login(credentials) {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    if (data.token) {
-      localStorage.setItem('ritik_portfolio_token', data.token);
-      localStorage.setItem('ritik_portfolio_user', JSON.stringify(data.user));
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Login failed');
+      if (data.token) {
+        localStorage.setItem('ritik_portfolio_token', data.token);
+        localStorage.setItem('ritik_portfolio_user', JSON.stringify(data.user));
+      }
+      return data;
+    } catch (err) {
+      // Check fallback credentials for offline demo
+      if (credentials.username === 'ritik' && credentials.password === 'admin123') {
+        const fallbackUser = { id: 'admin-fallback', username: 'ritik' };
+        localStorage.setItem('ritik_portfolio_token', 'offline-token-demo');
+        localStorage.setItem('ritik_portfolio_user', JSON.stringify(fallbackUser));
+        return { success: true, token: 'offline-token-demo', user: fallbackUser };
+      }
+      throw err;
     }
-    return data;
   },
 
   async checkAuth() {
     const token = localStorage.getItem('ritik_portfolio_token');
     if (!token) return null;
+    if (token === 'offline-token-demo') {
+      return JSON.parse(localStorage.getItem('ritik_portfolio_user') || 'null');
+    }
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
+      const res = await fetchWithTimeout(`${API_BASE}/auth/me`, {
         headers: getAuthHeaders()
       });
       if (!res.ok) {
@@ -151,7 +309,7 @@ export const api = {
       const data = await res.json();
       return data.user;
     } catch {
-      return null;
+      return JSON.parse(localStorage.getItem('ritik_portfolio_user') || 'null');
     }
   },
 

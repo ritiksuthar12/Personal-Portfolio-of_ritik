@@ -1,12 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
 :root {
   --bg-primary: #ffffff;
   --bg-secondary: #fafafa;
   --bg-subtle: #f4f5f7;
   --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #8c95a3;
+  --text-secondary: #374151;
+  --text-muted: #64748b;
   --border-light: #e5e7eb;
   --border-dark: #111827;
   --badge-bg: #f9fafb;
@@ -23,6 +21,45 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-hover: 0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
   --container-px: clamp(1rem, 3.5vw, 2rem);
+}
+
+/* Accessibility & Screen Reader Utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 1rem;
+  background: #111827;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  z-index: 9999;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: top 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* High-contrast accessible focus visible */
+:focus-visible {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 3px !important;
 }
 
 *, *::before, *::after {

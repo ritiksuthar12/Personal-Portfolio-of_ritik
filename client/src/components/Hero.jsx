@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Download, Mail, Sparkles } from 'lucide-react';
+import { ArrowRight, Download, Mail } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, InstagramIcon } from './TechIcons';
 
 export default function Hero({ onExploreProjects }) {
@@ -28,8 +28,8 @@ export default function Hero({ onExploreProjects }) {
           <span>DSA</span>
         </div>
         <p className="hero-desc">
-          I build modern and responsive web applications with clean UI and meaningful functionality.
-          I love turning ideas into real world products.
+          Full Stack Developer specializing in React, Node.js, Express, and MongoDB.
+          I engineer modern, performant web applications with clean code architecture and seamless user experiences.
         </p>
 
         {/* Action Buttons */}
@@ -37,6 +37,7 @@ export default function Hero({ onExploreProjects }) {
           <button
             onClick={onExploreProjects || (() => scrollTo('projects'))}
             className="btn-primary hero-btn"
+            aria-label="View Ritik Suthar's featured projects"
           >
             <span>View My Work</span> <ArrowRight size={17} />
           </button>
@@ -47,8 +48,9 @@ export default function Hero({ onExploreProjects }) {
               scrollTo('contact');
             }}
             className="btn-outline hero-btn"
+            aria-label="Request Ritik Suthar's resume via contact form"
           >
-            <span>Download Resume</span> <Download size={16} />
+            <span>Get Resume / Contact</span> <Download size={16} />
           </a>
         </div>
 
@@ -57,38 +59,38 @@ export default function Hero({ onExploreProjects }) {
           <a
             href="https://github.com/ritiksuthar"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="social-btn"
             title="GitHub Profile"
-            aria-label="GitHub Profile"
+            aria-label="Ritik Suthar on GitHub (opens in a new tab)"
           >
             <GithubIcon size={18} />
           </a>
           <a
             href="https://linkedin.com/in/ritiksuthar"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="social-btn"
             title="LinkedIn Profile"
-            aria-label="LinkedIn Profile"
+            aria-label="Ritik Suthar on LinkedIn (opens in a new tab)"
           >
             <LinkedinIcon size={18} />
           </a>
           <a
             href="https://instagram.com/ritiksuthar"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="social-btn"
-            title="Instagram"
-            aria-label="Instagram"
+            title="Instagram Profile"
+            aria-label="Ritik Suthar on Instagram (opens in a new tab)"
           >
             <InstagramIcon size={18} />
           </a>
           <a
             href="mailto:ritiksuthar.dev@gmail.com"
             className="social-btn"
-            title="Email Ritik"
-            aria-label="Email Ritik"
+            title="Email Ritik Suthar"
+            aria-label="Send an email to Ritik Suthar"
           >
             <Mail size={18} />
           </a>
@@ -105,6 +107,8 @@ export default function Hero({ onExploreProjects }) {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+            focusable="false"
           >
             {/* Main elliptical orbital sketch line */}
             <path
@@ -138,9 +142,13 @@ export default function Hero({ onExploreProjects }) {
           >
             <img
               src="/ritik.png"
-              alt="Ritik Suthar - Full Stack Developer"
+              alt="Ritik Suthar - Full Stack MERN Developer Portrait"
               className={`portrait-img ${isColor ? 'color-active' : ''}`}
+              width="360"
+              height="388"
               loading="eager"
+              fetchPriority="high"
+              decoding="async"
               onError={(e) => {
                 e.target.src = "/ritik.jpg";
               }}

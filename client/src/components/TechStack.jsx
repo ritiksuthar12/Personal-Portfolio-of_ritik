@@ -28,7 +28,7 @@ export default function TechStack({
               <Plus size={14} /> Add
             </button>
           )}
-          <button onClick={onViewAll} className="view-all-link">
+          <button onClick={onViewAll} className="view-all-link" aria-label="View all technical skills">
             View All <ArrowRight size={16} />
           </button>
         </div>
@@ -39,7 +39,7 @@ export default function TechStack({
           const id = skill.id || skill._id;
           return (
             <div key={id} className="tech-badge-card" style={{ position: 'relative' }}>
-              <div className="tech-icon-wrap">
+              <div className="tech-icon-wrap" aria-hidden="true">
                 {renderTechIcon(skill.icon || skill.name)}
               </div>
               <div style={{ overflow: 'hidden', flexGrow: 1 }}>
@@ -61,6 +61,7 @@ export default function TechStack({
                       padding: '2px'
                     }}
                     title="Edit skill"
+                    aria-label={`Edit skill ${skill.name}`}
                   >
                     <Edit2 size={13} />
                   </button>
@@ -74,6 +75,7 @@ export default function TechStack({
                       padding: '2px'
                     }}
                     title="Delete skill"
+                    aria-label={`Delete skill ${skill.name}`}
                   >
                     <Trash2 size={13} />
                   </button>
